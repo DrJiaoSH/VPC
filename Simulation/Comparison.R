@@ -89,5 +89,3 @@ for(rep in 1:Rep){
   p.fqc2[rep] <- sum(cat.fqc2==2)/100
 }
 
-mean(p.fqc1);sd(p.fqc1)
-mean(p.fqc2);sd(p.fqc2)
