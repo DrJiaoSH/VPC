@@ -5,7 +5,6 @@ N1 <- 200; N2 <- 200; N.train <- 100
 basis <- create.bspline.basis(c(0,1),nbasis=24)
 a <- sqrt(80); b <- sqrt((100-a^2)/7)
 #### simulate functions ####
-# for B-spline #
 sigma1 <- rep(c(b,b,a,rep(b,5)),3)
 sigma2 <- rep(c(rep(b,5),a,b,b),3)
 
@@ -16,9 +15,10 @@ p.pj2 <- vector(length=Rep)
 p.fqc1 <- vector(length=Rep)
 p.fqc2 <- vector(length=Rep)
 for(rep in 1:Rep){
-  score1 <- matrix(rchisq(N1*24,sigma1),24,N1)
+  print(rep)
+  score1 <- matrix(rnorm(N1*24,0,sigma1),24,N1)
   score1 <- score1-rowMeans(score1)
-  score2 <- matrix(rchisq(N2*24,sigma2),24,N2)
+  score2 <- matrix(rnorm(N2*24,0,sigma2),24,N2)
   score2 <- score2-rowMeans(score2)
   F1 <- fd(score1,basis)
   F2 <- fd(score2,basis)
@@ -26,7 +26,8 @@ for(rep in 1:Rep){
   F2.dis <- eval.fd(z,F2)
   C1 <- cov(t(F1.dis[,1:N.train]))
   C2 <- cov(t(F2.dis[,1:N.train]))
-  ### VPC ###
+ 
+  # This section is for the VPC mathod
   cat.vpc1 <- vector(length=100)
   cat.vpc2 <- vector(length=100)
   C.diff <- (C1-C2)%*%(C1-C2)
@@ -47,7 +48,8 @@ for(rep in 1:Rep){
   }
   p.vpc1[rep] <- sum(cat.vpc1==1)/100
   p.vpc2[rep] <- sum(cat.vpc2==2)/100
-  ### PJ ###
+  
+  # This method is for the projection method
   eigen.result1 <- eigen(C1)
   eigen.result2 <- eigen(C2)
   d1 <- which(cumsum(eigen.result1$values)/sum(eigen.result1$values)>0.9)[1]
@@ -66,7 +68,8 @@ for(rep in 1:Rep){
   cat.pj2 <- sum(diff1>diff2)
   p.pj1[rep] <- cat.pj1/100
   p.pj2[rep] <- cat.pj2/100
-  ### FQC ###
+  
+  # This is for the likehood ratio test
   cat.fqc1 <- vector(length=100)
   cat.fqc2 <- vector(length=100)
   eigent <- eigen(cov(t(cbind(F1.dis[,1:N.train],F2.dis[,1:N.train]))))
@@ -78,14 +81,13 @@ for(rep in 1:Rep){
   escore2 <- t(F2.dis[,-(1:N.train)])%*%eigenfun/length(z)
   for(i in 1:100){
     Q <- 0.5*(sum(log(eigenv1)-log(eigenv2))-sum(escore1[i,]^2/eigenv2-escore1[i,]^2/eigenv1))
-    if(Q>1) cat.fqc1[i] <- 2; if(Q<1) cat.fqc1[i] <- 1
+    if(Q>0) cat.fqc1[i] <- 2; if(Q<0) cat.fqc1[i] <- 1
     Q <- 0.5*(sum(log(eigenv1)-log(eigenv2))-sum(escore2[i,]^2/eigenv2-escore2[i,]^2/eigenv1))
-    if(Q>1) cat.fqc2[i] <- 2; if(Q<1) cat.fqc2[i] <- 1
+    if(Q>0) cat.fqc2[i] <- 2; if(Q<0) cat.fqc2[i] <- 1
   }
   p.fqc1[rep] <- sum(cat.fqc1==1)/100
   p.fqc2[rep] <- sum(cat.fqc2==2)/100
 }
 
-print(round(c(mean(p.vpc1),sd(p.vpc1),mean(p.vpc2),sd(p.vpc2)),3))
-print(round(c(mean(p.pj1),sd(p.pj1),mean(p.pj2),sd(p.pj2)),3))
-print(round(c(mean(p.fqc1),sd(p.fqc1),mean(p.fqc2),sd(p.fqc2)),3))
+mean(p.fqc1);sd(p.fqc1)
+mean(p.fqc2);sd(p.fqc2)
