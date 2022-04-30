@@ -16,8 +16,10 @@ rarmah22 = function(n, basis, Phi1, Phi2, Phi3, Phi4, Phi5, Phi6, Theta1, Theta2
 }
 
 D = 21; n <- 600 # n is the sample size, D is the number of Fourier basis
-Sigma1 = c(1,rep(c(0.8,0.8,1,1),5))#1.2^(-(1:D))#
-Sigma2 = c(1,rep(c(1,1,0.8,0.8),5))#1.2^(-(1:D))#
+
+# Specify the covariance structure of the two groups
+Sigma1 = c(1,rep(c(0.8,0.8,1,1),5))
+Sigma2 = c(1,rep(c(1,1,0.8,0.8),5))
 four = create.fourier.basis(rangeval=c(0, 1), nbasis=D)
 Psi1 = matrix(0,D,D); Psi2 = matrix(0,D,D)
 for(i in 1:D){for(j in 1:D){Psi1[i,j]=rnorm(1,0,Sigma1[i]*Sigma1[j])}}
@@ -25,7 +27,7 @@ for(i in 1:D){for(j in 1:D){Psi2[i,j]=rnorm(1,0,Sigma2[i]*Sigma2[j])}}
 Psi1 = Psi1/Mod(eigen(Psi1)$values[1])
 Psi2 = Psi2/Mod(eigen(Psi2)$values[1])
 
-
+# Specify the coefficient operator of the FMA process
 a1 <- 0.4; a2 <- 0.4
 Phi11 = a1*Psi1; Phi12 = a2*Psi2
 a3 <- 0.4; a4 <- 0.4
