@@ -1,10 +1,11 @@
 library(fda)
 ### setting ###
-z <- 1:100/100; Rep <- 200
-N1 <- 1000; N2 <- 700; 
-N.test <- 100;
-N1.train <- N1-N.test
-N2.train <- N2-N.test
+z <- 1:100/100 # evaluation grids
+Rep <- 200 # repetition of simulation runs
+N1 <- 1000; N2 <- 700; # change the ratio N1/N2 to tune the location of change point
+N.test <- 100; # test size
+N1.train <- N1-N.test # train size
+N2.train <- N2-N.test # train size
 basis <- create.bspline.basis(c(0,1),nbasis=24)
 a <- sqrt(40); b <- sqrt((100-a^2)/7)
 #### simulate functions ####
@@ -23,7 +24,7 @@ for(rep in 1:Rep){
   F2.dis <- eval.fd(z,F2)
   C1 <- cov(t(F1.dis[,1:N1.train]))
   C2 <- cov(t(F2.dis[,1:N2.train]))
-  ### VPC ###
+  # apply VPC
   cat.vpc1 <- vector(length=100)
   cat.vpc2 <- vector(length=100)
   C.diff <- (C1-C2)%*%(C1-C2)
@@ -45,5 +46,3 @@ for(rep in 1:Rep){
   p.vpc1[rep] <- sum(cat.vpc1==1)/100
   p.vpc2[rep] <- sum(cat.vpc2==2)/100
 }
-
-print(c(mean(p.vpc1),sd(p.vpc1),mean(p.vpc2),sd(p.vpc2)))
